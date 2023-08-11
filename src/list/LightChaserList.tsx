@@ -59,7 +59,7 @@ class LightChaserList extends Component<any> {
     onOk = (data: NewProjectInfoType) => {
         let urlParams = buildUrlParams({...data, ...{action: 'create'}});
         this.setState({addNewScreen: false});
-        window.open(`/designer?${urlParams}`, '_blank');
+        window.open(`/light-chaser-app/#/designer?${urlParams}`, '_blank');
     }
 
     onCancel = () => this.setState({addNewScreen: false});
@@ -72,9 +72,9 @@ class LightChaserList extends Component<any> {
                 id: id,
                 action: 'edit'
             });
-            window.open(`/designer?${params}`, '_blank');
+            window.open(`/light-chaser-app/#/designer?${params}`, '_blank');
         } else if (type === 'show') {
-            window.open(`/view?id=${id}&saveType=${savetype}`, '_blank');
+            window.open(`/light-chaser-app/#/view?id=${id}&saveType=${savetype}`, '_blank');
         }
     }
 

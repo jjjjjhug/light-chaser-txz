@@ -4,7 +4,7 @@ export interface UrlParams {
 
 
 export function parseUrlParams(): UrlParams {
-    const urlParams: URLSearchParams = new URLSearchParams(window.location.search);
+    const urlParams: URLSearchParams = new URLSearchParams(window.location.hash.split('?')[1]);
     const params: UrlParams = {};
     for (const [key, value] of urlParams) {
         params[key] = value;
