@@ -4,8 +4,12 @@ import {ComponentBaseProps} from "../../common-component/common-types";
 export interface BaseTextComponentStyle {
     color?: string;
     fontSize?: number;
+    fontWeight?: string;
     alignItems?: string;
     justifyContent?: string;
+    backgroundImage?: string;
+    WebkitBackgroundClip?: string
+    WebkitTextFillColor?: string
 }
 
 export interface BaseTextComponentProps extends ComponentBaseProps {
