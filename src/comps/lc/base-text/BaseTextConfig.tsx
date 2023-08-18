@@ -2,7 +2,7 @@
  * @Description:
  * @Author: tanxiangze
  * @Date: 2023-08-18 15:09:16
- * @LastEditTime: 2023-08-18 16:51:18
+ * @LastEditTime: 2023-08-18 17:09:29
  */
 import React from "react";
 import { ConfigType } from "../../../designer/right/ConfigType";
@@ -59,7 +59,8 @@ export const BaseTextStyleConfig: React.FC<ConfigType> = ({ instance }) => {
   };
 
   return (
-    <Accordion title={"文本配置"}>
+    <>
+      {" "}
       <ConfigItem
         title={"颜色"}
         itemStyle={{ width: "100%" }}
@@ -72,19 +73,19 @@ export const BaseTextStyleConfig: React.FC<ConfigType> = ({ instance }) => {
         />
       </ConfigItem>
       {/* <ConfigItem
-        title={"颜色"}
-        itemStyle={{ width: "100%" }}
-        contentStyle={{ width: "85%" }}
-      >
-        <BaseColorPicker
-          onChange={(e) => {
-            instance.update({ style: { color: e } });
-          }}
-          showText={true}
-          style={{ width: "100%", borderRadius: 2 }}
-          defaultValue={defaultColor}
-        />
-      </ConfigItem> */}
+    title={"颜色"}
+    itemStyle={{ width: "100%" }}
+    contentStyle={{ width: "85%" }}
+  >
+    <BaseColorPicker
+      onChange={(e) => {
+        instance.update({ style: { color: e } });
+      }}
+      showText={true}
+      style={{ width: "100%", borderRadius: 2 }}
+      defaultValue={defaultColor}
+    />
+  </ConfigItem> */}
       <ConfigItem
         title={"字体大小"}
         itemStyle={{ width: "100%" }}
@@ -119,7 +120,7 @@ export const BaseTextStyleConfig: React.FC<ConfigType> = ({ instance }) => {
           defaultValue={"normal"}
         />
       </ConfigItem>
-    </Accordion>
+    </>
   );
 };
 
