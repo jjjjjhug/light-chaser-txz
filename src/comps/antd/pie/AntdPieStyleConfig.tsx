@@ -2,51 +2,52 @@ import React, {Component, useState} from 'react';
 import {ConfigType} from "../../../designer/right/ConfigType";
 import ConfigItem from "../../../lib/lc-config-item/ConfigItem";
 import UnderLineInput from "../../../lib/lc-input/UnderLineInput";
-import {WritableRoseOptions} from "../types";
+import AntdPie from "./AntdPie";
+import {WritablePieOptions} from "../../antd-common/types";
 import ColorMode, {ColorModeValue} from "../../../lib/lc-color-mode/ColorMode";
 import BaseColorPicker from "../../../lib/lc-color-picker/BaseColorPicker";
 import CfgItemBorder from "../../../lib/lc-config-item/CfgItemBorder";
-import {RoseOptions, ShapeStyle, StatisticText} from "@antv/g2plot";
+import {PieOptions, ShapeStyle, StatisticText} from "@antv/g2plot";
 import LcSwitch from "../../../lib/lc-switch/LcSwitch";
+import Select from '../../../lib/lc-select/Select';
 import {Types} from "@antv/g2";
-import {AntdLegend} from "../config/AntdFragment";
+import {AntdLegend} from "../../antd-common/config/AntdFragment";
 import {Legend} from "@antv/g2plot/lib/types/legend";
 import Accordion from "../../../lib/lc-accordion/Accordion";
-import AntdCommonRose from "./AntdCommonRose";
 
-export default class AntdRoseCommonStyleConfig extends Component<ConfigType> {
+export default class AntdPieStyleConfig extends Component<ConfigType> {
 
-    roseGraphicsChange = (config: WritableRoseOptions) => {
-        const instance = this.props.instance as AntdCommonRose;
+    pieGraphicsChange = (config: WritablePieOptions) => {
+        const instance = this.props.instance as AntdPie;
         instance.update({style: config});
     }
 
     legendChange = (legend: Legend) => {
-        const instance = this.props.instance as AntdCommonRose;
+        const instance = this.props.instance as AntdPie;
         instance.update({style: {legend}});
     }
 
     render() {
-        const instance = this.props.instance as AntdCommonRose;
-        const roseConfig = instance.getConfig()!.style as RoseOptions;
+        const instance = this.props.instance as AntdPie;
+        const pieConfig = instance.getConfig()!.style as PieOptions;
         return (
             <>
-                <AntdLegend onChange={this.legendChange} config={roseConfig.legend}/>
-                <AntdRoseGraphicsConfig onChange={this.roseGraphicsChange} config={roseConfig}/>
+                <AntdLegend onChange={this.legendChange} config={pieConfig.legend}/>
+                <AntdPieGraphicsConfig onChange={this.pieGraphicsChange} config={pieConfig}/>
             </>
         );
     }
 }
 
-export interface AntdRoseGraphicsConfigProps {
-    config: RoseOptions;
+export interface AntdPieGraphicsConfigProps {
+    config: PieOptions;
 
-    onChange(config: WritableRoseOptions): void;
+    onChange(config: WritablePieOptions): void;
 }
 
-export const AntdRoseGraphicsConfig: React.FC<AntdRoseGraphicsConfigProps> = ({config, onChange}) => {
+export const AntdPieGraphicsConfig: React.FC<AntdPieGraphicsConfigProps> = ({config, onChange}) => {
 
-    const RoseColorChange = (data: ColorModeValue) => {
+    const pieColorChange = (data: ColorModeValue) => {
         const {mode, value} = data;
         switch (mode) {
             case 'single':
@@ -54,7 +55,7 @@ export const AntdRoseGraphicsConfig: React.FC<AntdRoseGraphicsConfigProps> = ({c
                 onChange({color: value});
                 break;
             case 'gradient':
-                onChange({sectorStyle: {fill: `l(0.4,0.5) 0:${value[0]} 1:${value[1]}`}});
+                onChange({pieStyle: {fill: `l(0.4,0.5) 0:${value[0]} 1:${value[1]}`}});
                 break;
         }
     }
@@ -90,28 +91,46 @@ export const AntdRoseGraphicsConfig: React.FC<AntdRoseGraphicsConfigProps> = ({c
                 </ConfigItem>
                 <ConfigItem title={"结束角度"}>
                     <UnderLineInput type={"number"} min={0} max={2} step={0.01}
-                                    defaultValue={config?.endAngle || 2}
+                                    defaultValue={config?.endAngle || 0}
                                     onChange={(event) => onChange({endAngle: parseFloat(event.target.value) * Math.PI})}/>
                 </ConfigItem>
                 <ConfigItem title={'颜色'} itemStyle={{width: '100%'}} contentStyle={{width: '85%'}}>
-                    <ColorMode onChange={RoseColorChange} data={buildColorModeData()}
+                    <ColorMode onChange={pieColorChange} data={buildColorModeData()}
                                exclude={['gradient']}/>
                 </ConfigItem>
                 <ConfigItem title={'描边颜色'}>
                     <CfgItemBorder width={'100%'}>
                         <BaseColorPicker
-                            defaultValue={(config?.sectorStyle as ShapeStyle)?.stroke || '#fff'}
-                            onChange={(value) => onChange({sectorStyle: {stroke: value}})}
+                            defaultValue={(config?.pieStyle as ShapeStyle)?.stroke || '#fff'}
+                            onChange={(value) => onChange({pieStyle: {stroke: value}})}
                             style={{width: '100%', height: '15px', borderRadius: 2}} showText={true}/>
                     </CfgItemBorder>
                 </ConfigItem>
                 <ConfigItem title={'描边宽度'}>
                     <UnderLineInput type={"number"} min={0}
-                                    defaultValue={(config?.sectorStyle as ShapeStyle)?.lineWidth || 0}
-                                    onChange={(event) => onChange({sectorStyle: {lineWidth: parseInt(event.target.value)}})}/>
+                                    defaultValue={(config?.pieStyle as ShapeStyle)?.lineWidth || 0}
+                                    onChange={(event) => onChange({pieStyle: {lineWidth: parseInt(event.target.value)}})}/>
                 </ConfigItem>
             </Accordion>
+
+            <Accordion title={'标题'}>
+                <StatisticTextConfig config={config?.statistic?.title || false}
+                                     onChange={(config) => onChange({statistic: {title: config}})}/>
+            </Accordion>
+
+            <Accordion title={'内容'}>
+                <StatisticTextConfig config={config?.statistic?.content || false}
+                                     onChange={(config) => onChange({statistic: {content: config}})}/>
+            </Accordion>
+
             <Accordion title={"标签"}>
+                <ConfigItem title={'位置'}>
+                    <Select defaultValue={(config?.label as Types.GeometryLabelCfg)?.type || 'outer'}
+                            onChange={(value) => onChange({label: {type: value}})}
+                            options={[
+                                {value: 'inner', label: '内测'},
+                                {value: 'outer', label: '外侧'}]}/>
+                </ConfigItem>
                 <ConfigItem title={'偏移'}>
                     <UnderLineInput type={"number"}
                                     defaultValue={(config?.label as Types.GeometryLabelCfg)?.offset || 0}
@@ -214,3 +233,40 @@ export const StatisticTextConfig: React.FC<AntdStatisticTextConfigProps> = ({con
         </>
     )
 }
+
+//
+// export interface AntdFontProps {
+//     config: LooseObject;
+//     disabled?: boolean;
+//
+//     onChange(config: LooseObject): void;
+// }
+//
+// export const AntdFontConfig: React.FC<AntdFontProps> = ({config, disabled, onChange}) => {
+//
+//     return (
+//         <>
+//             <ConfigItem title={"字号"}>
+//                 <UnderLineInput type={'number'} min={10}
+//                                 disabled={disabled}
+//                                 defaultValue={parseInt(config?.fontSize) || '12'}
+//                                 onChange={(event) => onChange({fontSize: event.target.value + 'px'})}/>
+//             </ConfigItem>
+//             <ConfigItem title={"加粗"}>
+//                 <UnderLineInput type={'number'} min={100} max={900} step={100}
+//                                 disabled={disabled}
+//                                 defaultValue={parseInt(config?.fontWeight) || '500'}
+//                                 onChange={(event) => onChange({fontWeight: parseInt(event.target.value)})}/>
+//             </ConfigItem>
+//             <ConfigItem title={'颜色'}>
+//                 <CfgItemBorder width={'100%'}>
+//                     <BaseColorPicker
+//                         disabled={disabled}
+//                         defaultValue={config?.color || '#fff'}
+//                         onChange={(value) => onChange({color: value})}
+//                         style={{width: '100%', height: '15px', borderRadius: 2}} showText={true}/>
+//                 </CfgItemBorder>
+//             </ConfigItem>
+//         </>
+//     )
+// }

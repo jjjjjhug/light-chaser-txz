@@ -8,10 +8,10 @@ import ringProgressImg from './ring-progress.png';
 import {BaseInfoType} from "../../../designer/DesignerType";
 
 const AnimationConfig = React.lazy(() => import("../../common-component/animation-config/AnimationConfig"));
-const AntdRingProgressConfig = React.lazy(() => import("./AntdRingProgressConfig").then((module) => ({default: module.AntdRingProgressConfig})));
+const AntdRingProgressStyleConfig = React.lazy(() => import("./AntdRingProgressConfig").then((module) => ({default: module.AntdRingProgressStyleConfig})));
+const AntdRingProgressDataConfig = React.lazy(() => import("./AntdRingProgressConfig").then((module) => ({default: module.AntdRingProgressDataConfig})));
 const ThemeConfig = React.lazy(() => import("../../common-component/theme-config/ThemeConfig"));
 const BaseInfo = React.lazy(() => import("../../common-component/base-info/BaseInfo"));
-const DataConfig = React.lazy(() => import("../../common-component/data-config/DataConfig"));
 
 
 class AntdRingProgressDefinition extends AbstractCustomComponentDefinition<AntdRingProgress, BaseMenuMapping, AntdRingProgressProps> {
@@ -27,8 +27,8 @@ class AntdRingProgressDefinition extends AbstractCustomComponentDefinition<AntdR
     getMenuToConfigContentMap(): BaseMenuMapping | null {
         return {
             info: BaseInfo,
-            data: DataConfig,
-            style: AntdRingProgressConfig,
+            data: AntdRingProgressDataConfig,
+            style: AntdRingProgressStyleConfig,
             animation: AnimationConfig,
             theme: ThemeConfig
         };
@@ -57,27 +57,39 @@ class AntdRingProgressDefinition extends AbstractCustomComponentDefinition<AntdR
                 desc: '基于Antd Designer实现的迷你环图组件',
             },
             style: {
-                autoFit: true,
                 percent: 0.7,
-                color: ['#008591', '#E8EDF3'],
+                color: ["#00b5ffff", "#c5ebfbff"],
                 statistic: {
                     content: {
                         style: {
-                            fill: '#fff',
-                        }
-                    }
+                            fill: "#fff",
+                            fontSize: "24px",
+                            fontWeight: 400,
+                        },
+                        offsetY: -7,
+                    },
+                    title: {
+                        style: {
+                            fontSize: "14px",
+                            fontWeight: 400,
+                            color: "#fff",
+                        },
+                        content: "当前进度",
+                        offsetY: -11,
+                    },
                 },
                 animation: {
                     appear: {
-                        animation: 'wave-in',
+                        animation: "wave-in",
                         duration: 3000,
                     },
-                }
+                },
+                progressStyle: {},
             },
             data: {
                 dataSource: 'static',
                 staticData: {
-                    data: []
+                    data: 0.7,
                 },
             },
         };

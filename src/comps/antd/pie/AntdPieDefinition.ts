@@ -8,7 +8,7 @@ import {BaseInfoType} from "../../../designer/DesignerType";
 import AntdPie, {AntdPieProps} from "./AntdPie";
 
 const AnimationConfig = React.lazy(() => import("../../common-component/animation-config/AnimationConfig"));
-const AntdPieConfig = React.lazy(() => import("./AntdPieConfig").then((module) => ({default: module.AntdPieConfig})));
+const AntdPieConfig = React.lazy(() => import("./AntdPieStyleConfig"));
 const ThemeConfig = React.lazy(() => import("../../common-component/theme-config/ThemeConfig"));
 const BaseInfo = React.lazy(() => import("../../common-component/base-info/BaseInfo"));
 const DataConfig = React.lazy(() => import("../../common-component/data-config/DataConfig"));
@@ -49,12 +49,10 @@ class AntdPieDefinition extends AbstractCustomComponentDefinition<AntdPie, BaseM
 
     getInitConfig(): AntdPieProps {
         const data = [
-            {type: '分类一', value: 27},
-            {type: '分类二', value: 25},
-            {type: '分类三', value: 18},
-            {type: '分类四', value: 15},
-            {type: '分类五', value: 10},
-            {type: '其他', value: 5},
+            {type: 'sort1', value: 30},
+            {type: 'sort2', value: 25},
+            {type: 'sort3', value: 20},
+            {type: 'sort4', value: 25}
         ];
         return {
             info: {
@@ -65,38 +63,77 @@ class AntdPieDefinition extends AbstractCustomComponentDefinition<AntdPie, BaseM
             },
             style: {
                 data,
-                angleField: 'value',
-                colorField: 'type',
-                radius: 1,
+                angleField: "value",
+                colorField: "type",
+                radius: 0.7,
                 innerRadius: 0.6,
+                pieStyle: {
+                    stroke: "#fff",
+                    lineWidth: 0,
+                },
                 label: {
-                    type: 'inner',
-                    offset: '-50%',
-                    content: '{value}',
+                    type: "outer",
+                    offset: 27,
+                    content: "{name} {percentage}",
+                    autoRotate: true,
+                    rotate: 0,
                     style: {
-                        textAlign: 'center',
-                        fontSize: 14,
+                        textAlign: "center",
+                        fontSize: 10,
+                        fontWeight: 400,
+                        fill: "#cececeff",
                     },
                 },
-                interactions: [{type: 'element-selected'}, {type: 'element-active'}],
+                legend: {
+                    position: "right",
+                    layout: "vertical",
+                    itemName: {
+                        style: {
+                            fill: "#adadadff",
+                            fontSize: 12,
+                        },
+                    },
+                },
+                interactions: [
+                    {
+                        type: "element-selected",
+                    },
+                    {
+                        type: "element-active",
+                    },
+                ],
                 statistic: {
-                    title: false,
+                    title: {
+                        style: {
+                            fontSize: "10px",
+                            color: "#b9b9b9ff",
+                            fontWeight: 300,
+                        },
+                        content: "总计",
+                        offsetY: -6,
+                    },
                     content: {
                         style: {
-                            whiteSpace: 'pre-wrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            fontSize: '14px',
-                            color: '#fff'
+                            fontSize: "16px",
+                            color: "#c5c5c5ff",
                         },
-                        content: 'AntV\nG2Plot',
+                        content: "100",
+                        offsetY: 2,
+                        offsetX: -2,
                     },
                 },
+                animation: {
+                    appear: {
+                        animation: "wave-in",
+                        duration: 3000,
+                    },
+                },
+                color: ["#0087ffff", "#339effff", "#87c5ffff", "#4687c3ff"],
             },
             data: {
                 dataSource: 'static',
                 staticData: {
-                    data: []
+                    data
                 },
             },
         };

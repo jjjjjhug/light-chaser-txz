@@ -9,7 +9,7 @@ import {Types} from "@antv/g2";
 import {AxisLabelCfg, AxisLineCfg, AxisSubTickLineCfg, AxisTickLineCfg, AxisTitleCfg} from "@antv/component/esm";
 import {ShapeAttrs} from "@antv/g-base";
 import {AxisGridCfg} from "@antv/g2/esm/interface";
-import {isEqual, isEqualWith} from "lodash";
+import {isEqual} from "lodash";
 
 
 const BaseColorPicker = React.lazy(() => import('../../../../lib/lc-color-picker/BaseColorPicker'));
@@ -58,10 +58,8 @@ class AxisConfig extends Component<AxisConfigProps> {
 
     render() {
         const {config, title = '坐标轴', onChange} = this.props;
-        const enable = isEqualWith(config, this.emptyData, (value: any, other: any, indexOrKey: any | undefined, parent: any, otherParent: any, stack: any) => {
-            delete value['position'];
-            return !isEqual(value, other);
-        });
+        const {grid, line, label, title: _title, tickLine, subTickLine} = config || {};
+        const enable = !!(grid || line || label || _title || tickLine || subTickLine);
         return (
             <Accordion title={title} showSwitch={true} defaultValue={enable}
                        onChange={value => {
@@ -265,21 +263,21 @@ export const AxisGridLine: React.FC<AxisGridLineProps> = ({config, onChange}) =>
 
     const initConfig: AxisGridCfg = config || {alignTick: true, style: {stroke: '#fff', lineWidth: 1} as ShapeAttrs};
 
-    const [axisTitleDisable, setAxisTitleDisable] = useState(!!config);
+    const [axisTitleDisable, setAxisTitleDisable] = useState(!config);
     const [alignTick, setAlignTick] = useState(config?.alignTick || false);
     const [color, setColor] = useState((config?.line?.style as ShapeAttrs)?.stroke || '#ffffff');
 
     return (
         <ConfigCard title={'网格线'}>
             <ConfigItem title={'开启'}>
-                <LcSwitch defaultValue={axisTitleDisable}
+                <LcSwitch defaultValue={!axisTitleDisable}
                           onChange={value => {
-                              if (!value) {
+                              if (value) {
+                                  setAxisTitleDisable(false);
+                                  setAlignTick(true);
+                              } else {
                                   setAxisTitleDisable(true);
                                   setAlignTick(false);
-                              } else {
-                                  setAlignTick(true);
-                                  setAxisTitleDisable(false);
                               }
                               onChange(value ? initConfig : null)
                           }}/>
@@ -322,21 +320,21 @@ export const AxisLine: React.FC<AxisLIneProps> = ({config, onChange}) => {
 
     const initConfig: AxisLineCfg = config || {style: {stroke: '#fff', lineWidth: 1} as ShapeAttrs};
 
-    const [axisLineDisable, setAxisLineDisable] = useState(!!config);
+    const [axisLineDisable, setAxisLineDisable] = useState(!config);
     const [lineWidth, setLineWidth] = useState(config?.style?.lineWidth || 0);
     const [lineColor, setLineColor] = useState(config?.style?.stroke || '#FFFFFF');
 
     return (
         <ConfigCard title={'轴线'}>
             <ConfigItem title={'开启'}>
-                <LcSwitch defaultValue={axisLineDisable}
+                <LcSwitch defaultValue={!axisLineDisable}
                           onChange={value => {
-                              if (!value)
-                                  setAxisLineDisable(true);
-                              else {
+                              if (value) {
                                   setAxisLineDisable(false);
                                   setLineWidth(2);
                                   setLineColor('#FFFFFF');
+                              } else {
+                                  setAxisLineDisable(true);
                               }
                               onChange(value ? initConfig : null)
                           }}/>
@@ -375,7 +373,7 @@ export const AxisTitle: React.FC<AxisTitleProps> = ({config, onChange}) => {
 
     const initConfig = config || {text: '标题', position: 'center', style: {fill: '#fff'}};
 
-    const [axisTitleDisable, setAxisTitleDisable] = useState(!!config);
+    const [axisTitleDisable, setAxisTitleDisable] = useState(!config);
     const [titlePos, setTitlePos] = useState(config?.position || 'center');
     const [title, setTitle] = useState(config?.text || '');
     const [titleColor, setTitleColor] = useState(config?.style?.fill || '#ffffff');
@@ -383,15 +381,15 @@ export const AxisTitle: React.FC<AxisTitleProps> = ({config, onChange}) => {
     return (
         <ConfigCard title={'标题'}>
             <ConfigItem title={'开启'}>
-                <LcSwitch defaultValue={!!config}
+                <LcSwitch defaultValue={!axisTitleDisable}
                           onChange={(value) => {
-                              if (!value)
-                                  setAxisTitleDisable(true)
-                              else {
+                              if (value) {
                                   setAxisTitleDisable(false);
                                   setTitlePos('center');
                                   setTitle('标题');
                                   setTitleColor('#ffffff');
+                              } else {
+                                  setAxisTitleDisable(true)
                               }
                               onChange(value ? initConfig : null);
                           }}/>
