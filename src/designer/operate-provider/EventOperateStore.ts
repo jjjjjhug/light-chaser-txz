@@ -5,6 +5,38 @@ import Moveable from "react-moveable";
 import {RefObject} from "react";
 import designerStore from "../store/DesignerStore";
 import {MovableItemType} from "../../lib/lc-movable/types";
+import {merge} from "../../utils/ObjectUtil";
+
+/**
+ * 组件多选情况下的坐标值
+ */
+export interface GroupCoordinateType {
+    /**
+     * 最小X坐标
+     */
+    minX?: number;
+    /**
+     * 最小Y坐标
+     */
+    minY?: number;
+    /**
+     * 最大X坐标
+     */
+    maxX?: number;
+    /**
+     * 最大Y坐标
+     */
+    maxY?: number;
+    /**
+     * 组合框的宽度
+     */
+    groupWidth?: number;
+    /**
+     * 组合框的高度
+     */
+    groupHeight?: number;
+}
+
 
 /**
  * 设计器画布及元素操作控制store，用于协调缩放、拖拽、选择，右键操作菜单操作之间的数据传递
@@ -13,19 +45,12 @@ import {MovableItemType} from "../../lib/lc-movable/types";
 class EventOperateStore {
     constructor() {
         makeObservable(this, {
-            scale: observable,
             targets: observable,
             targetIds: observable,
-            setScale: action,
             setTargets: action,
             setTargetIds: action,
         })
     }
-
-    /**
-     * 缩放系数，所有接入缩放的组件都依赖该值
-     */
-    scale: number = 1;
 
     /**
      * 拖拽框架实例引用
@@ -63,23 +88,26 @@ class EventOperateStore {
      */
     minLevel = 0;
 
-    // 用于记录鼠标右键点击时的目标元素，用于快捷键操作时的目标元素的范围筛选
+    /**
+     * 用于记录鼠标右键点击时的目标元素，用于快捷键操作时的目标元素的范围筛选
+     */
     pointerTarget: any = null;
 
     /**
-     * 组合框选时的起始坐标
+     * 组合框选时的坐标信息
      */
-    groupRootCoordinate: { x: number, y: number } = {x: Infinity, y: Infinity};
+    groupCoordinate: GroupCoordinateType = {
+        minX: Infinity,
+        minY: Infinity,
+        maxX: -Infinity,
+        maxY: -Infinity
+    };
 
     setMaxLevel = (order: number) => this.maxLevel = order;
 
     setMinLevel = (order: number) => this.minLevel = order;
 
     setUnLockedId = (id: string) => this.unLockedId = id;
-
-    setScale = (scale: number) => {
-        this.scale = scale;
-    };
 
     setMovableRef = (ref: any) => this.movableRef = ref;
 
@@ -109,26 +137,39 @@ class EventOperateStore {
 
     setPointerTarget = (target: any) => this.pointerTarget = target;
 
-    setGroupRootCoordinate = (coordinate: { x: number, y: number }) => this.groupRootCoordinate = coordinate;
+    setGroupCoordinate = (coordinate: GroupCoordinateType) => {
+        this.groupCoordinate = merge(this.groupCoordinate, coordinate);
+    }
 
     /**
      * 计算组件多选时的左上角坐标
      * @param compArr
      */
-    calculateGroupRootCoordinate = (compArr: any[]) => {
+    calculateGroupCoordinate = (compArr: any[]) => {
         const {layoutConfigs} = designerStore;
-        let groupRootCoordinate = {x: Infinity, y: Infinity};
+        let groupCoordinate: GroupCoordinateType = {
+            minX: Infinity,
+            minY: Infinity,
+            maxX: -Infinity,
+            maxY: -Infinity
+        };
         compArr.forEach((item: any) => {
             const layoutConfig: MovableItemType = layoutConfigs[item.id];
-            let posArr = layoutConfig.position;
-            const x = posArr![0];
-            const y = posArr![1];
-            if (x < groupRootCoordinate.x)
-                groupRootCoordinate.x = x;
-            if (y < groupRootCoordinate.y)
-                groupRootCoordinate.y = y;
+            let {position, width, height} = layoutConfig;
+            const x = position![0];
+            const y = position![1];
+            if (x < groupCoordinate.minX!)
+                groupCoordinate.minX = x;
+            if (y < groupCoordinate.minY!)
+                groupCoordinate.minY = y;
+            if ((x + width!) > groupCoordinate.maxX!)
+                groupCoordinate.maxX = x + width!;
+            if ((y + height!) > groupCoordinate.maxY!)
+                groupCoordinate.maxY = y + height!;
         });
-        this.setGroupRootCoordinate(groupRootCoordinate);
+        groupCoordinate.groupWidth = groupCoordinate.maxX! - groupCoordinate.minX!;
+        groupCoordinate.groupHeight = groupCoordinate.maxY! - groupCoordinate.minY!;
+        this.setGroupCoordinate(groupCoordinate);
     }
 
 }

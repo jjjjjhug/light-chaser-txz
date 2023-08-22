@@ -3,6 +3,8 @@ import Selecto from "react-selecto";
 import eventOperateStore from "../../designer/operate-provider/EventOperateStore";
 import {observer} from "mobx-react";
 import Moveable from 'react-moveable';
+import footerStore from "../../designer/footer/FooterStore";
+import designerStore from "../../designer/store/DesignerStore";
 
 class GroupSelectable extends Component {
     selectorRef = React.createRef<Selecto>();
@@ -34,8 +36,32 @@ class GroupSelectable extends Component {
         setTargets(selected);
         if (selected.length > 1) {
             //计算组件多选时的左上角坐标
-            let {calculateGroupRootCoordinate} = eventOperateStore;
-            calculateGroupRootCoordinate(selected);
+            let {calculateGroupCoordinate} = eventOperateStore;
+            calculateGroupCoordinate(selected);
+        }
+
+        //更新底部坐标信息
+        let {setCoordinate, setSize} = footerStore;
+        const {layoutConfigs} = designerStore;
+        if (selected.length === 1) {
+            const {position, width, height} = layoutConfigs[selected[0].id];
+            setCoordinate([position![0], position![1]]);
+            setSize([width!, height!])
+        } else if (selected.length > 1) {
+            let {groupCoordinate} = eventOperateStore;
+            setCoordinate([groupCoordinate.minX!, groupCoordinate.minY!]);
+            setSize([groupCoordinate.groupWidth!, groupCoordinate.groupHeight!])
+        }
+    }
+
+    onDragStart = (e: any) => {
+        const {movableRef, targets} = eventOperateStore;
+        const movable: Moveable = movableRef!.current!;
+        const target = e.inputEvent.target;
+        if ((movable.isMoveableElement(target))
+            || targets.some((t: any) => t === target || t.contains(target))
+        ) {
+            e.stop();
         }
     }
 
@@ -51,16 +77,7 @@ class GroupSelectable extends Component {
                          selectFromInside={false}
                          toggleContinueSelect={["ctrl"]}
                          ratio={0}
-                         onDragStart={e => {
-                             const {movableRef, targets} = eventOperateStore;
-                             const movable: Moveable = movableRef!.current!;
-                             const target = e.inputEvent.target;
-                             if ((movable.isMoveableElement(target))
-                                 || targets.some((t: any) => t === target || t.contains(target))
-                             ) {
-                                 e.stop();
-                             }
-                         }}
+                         onDragStart={this.onDragStart}
                          onSelectEnd={this.onSelectEnd}
                 />
             </>

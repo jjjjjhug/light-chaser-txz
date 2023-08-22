@@ -4,6 +4,7 @@ import {observer} from "mobx-react";
 import eventOperateStore from "../../designer/operate-provider/EventOperateStore";
 import designerStore from "../../designer/store/DesignerStore";
 import {MovableItemType} from "./types";
+import footerStore from "../../designer/footer/FooterStore";
 
 interface GroupMovableProps {
     readonly?: boolean;
@@ -26,6 +27,7 @@ class GroupMovable extends React.Component<GroupMovableProps> {
 
     onDragEnd = (e: any) => {
         const {updateLayout} = designerStore;
+        const {setCoordinate} = footerStore;
         const {lastEvent, target} = e;
         if (lastEvent) {
             const {beforeTranslate} = lastEvent;
@@ -38,6 +40,7 @@ class GroupMovable extends React.Component<GroupMovableProps> {
                     position: [beforeTranslate[0], beforeTranslate[1]]
                 }
             ], false);
+            setCoordinate([beforeTranslate[0], beforeTranslate[1]])
         }
     }
 
@@ -59,6 +62,14 @@ class GroupMovable extends React.Component<GroupMovableProps> {
         })
         if (data.length > 0)
             updateLayout(data);
+        const posChange = e?.lastEvent?.beforeTranslate || [0, 0]
+        const {setGroupCoordinate, groupCoordinate} = eventOperateStore;
+        const minX = groupCoordinate.minX + posChange[0];
+        const minY = groupCoordinate.minY + posChange[1];
+        setGroupCoordinate({minX, minY})
+        //更新footer组件中的最表信息
+        const {setCoordinate} = footerStore;
+        setCoordinate([minX, minY])
     }
 
     onResizeEnd = (e: any) => {
@@ -75,6 +86,9 @@ class GroupMovable extends React.Component<GroupMovableProps> {
                     position: [translate[0], translate[1]]
                 }
             ], false)
+            const {setCoordinate, setSize} = footerStore;
+            setCoordinate([translate[0], translate[1]])
+            setSize([width, height])
         }
     }
 
@@ -96,6 +110,25 @@ class GroupMovable extends React.Component<GroupMovableProps> {
         })
         if (data.length > 0)
             updateLayout(data, false);
+        const {dist, direction} = e.lastEvent;
+        const {setGroupCoordinate, groupCoordinate} = eventOperateStore;
+        const {setCoordinate, setSize} = footerStore;
+        if (direction[0] === -1 || direction[1] === -1) {
+            //缩放元素左侧或上侧，此时需要同时改变坐标
+            setGroupCoordinate({
+                minX: groupCoordinate.minX! - dist[0],
+                minY: groupCoordinate.minY! - dist[1],
+                groupWidth: groupCoordinate.groupWidth + dist[0],
+                groupHeight: groupCoordinate.groupHeight + dist[1],
+            })
+            setCoordinate([groupCoordinate.minX!, groupCoordinate.minY!])
+        } else {
+            setGroupCoordinate({
+                groupWidth: groupCoordinate.groupWidth + dist[0],
+                groupHeight: groupCoordinate.groupHeight + dist[1],
+            })
+        }
+        setSize([groupCoordinate.groupWidth!, groupCoordinate.groupHeight!])
     }
 
 
