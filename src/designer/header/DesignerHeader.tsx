@@ -1,19 +1,19 @@
 import React, {Component, ReactElement, Suspense} from 'react';
 import './DesignerHeader.less';
 import headerStore from "./HeaderStore";
-import CanvasHdConfigImpl from "./items/canvas/CanvasHdConfigImpl";
 import {observer} from "mobx-react";
-import designerStarter from "../DesignerStarter";
 import Loading from "../../lib/loading/Loading";
+import EditorDesignerLoader from "../loader/EditorDesignerLoader";
 
 const ProjectHdItemImpl = React.lazy(() => import('./items/project/ProjectHdItemImpl'));
+const CanvasHdConfigImpl = React.lazy(() => import('./items/canvas/CanvasHdConfigImpl'));
 const ThemeHdItemImpl = React.lazy(() => import('./items/theme/ThemeHdItemImpl'));
 
 class Header extends Component<any> {
 
     buildHeaderList = (): Array<ReactElement> => {
-        const {headerItemInstances} = designerStarter;
         let items: Array<ReactElement> = [];
+        const {headerItemInstances} = EditorDesignerLoader.getInstance();
         for (let i = 0; i < headerItemInstances.length; i++) {
             const {icon: Icon, name, onClick} = headerItemInstances[i];
             items.push(
@@ -37,7 +37,7 @@ class Header extends Component<any> {
                     {items}
                 </div>
                 {/*todo 想办法让这两个组件不要在这里写死*/}
-                {canvasVisible && <Suspense fallback={<Loading/>}><CanvasHdConfigImpl/> </Suspense>}
+                {canvasVisible && <Suspense fallback={<Loading/>}><CanvasHdConfigImpl/></Suspense>}
                 {projectVisible && <Suspense fallback={<Loading/>}><ProjectHdItemImpl/></Suspense>}
                 {themeVisible && <Suspense fallback={<Loading/>}><ThemeHdItemImpl/></Suspense>}
             </div>

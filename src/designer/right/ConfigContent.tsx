@@ -1,21 +1,20 @@
 import React, {Component, Suspense} from 'react';
 import {LineOutlined} from "@ant-design/icons";
 import rightStore from "./RightStore";
-import designerStarter from "../DesignerStarter";
 import {observer} from "mobx-react";
 import './ConfigContent.less';
 import Loading from "../../lib/loading/Loading";
 import designerStore from "../store/DesignerStore";
 import {AbstractCustomComponentDefinition} from "../../framework/core/AbstractCustomComponentDefinition";
 import {ConfigType} from "./ConfigType";
+import EditorDesignerLoader from "../loader/EditorDesignerLoader";
 
 class ConfigContent extends Component {
 
     buildConfigContent = () => {
         const {compInstances} = designerStore;
         let {activeMenu, activeElem} = rightStore;
-        let {customComponentInfoMap} = designerStarter;
-        let abstractConfigObj: AbstractCustomComponentDefinition = customComponentInfoMap[activeElem.type + '']
+        let abstractConfigObj: AbstractCustomComponentDefinition = EditorDesignerLoader.getInstance().customComponentInfoMap[activeElem.type + '']
         let configMapping = abstractConfigObj.getMenuToConfigContentMap();
         const ConfigComp: React.ComponentType<ConfigType> = configMapping![activeMenu];
         const instance = compInstances[activeElem.id + ''];

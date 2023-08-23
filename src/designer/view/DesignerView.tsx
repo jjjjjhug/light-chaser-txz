@@ -5,14 +5,14 @@ import {MovableItemType} from "../../lib/lc-movable/types";
 import Loading from "../../lib/loading/Loading";
 import designerStore from "../store/DesignerStore";
 import ComponentContainer from "../../framework/core/ComponentContainer";
-import {loadDesigner} from "../LoadDesigner";
 import {observer} from "mobx-react";
+import EditorDesignerLoader from "../loader/EditorDesignerLoader";
 
 class DesignerView extends Component {
 
-    componentDidMount() {
-        //加载项目
-        loadDesigner();
+    constructor(props: any) {
+        super(props);
+        EditorDesignerLoader.getInstance().load();
     }
 
     generateElement = () => {
@@ -25,12 +25,12 @@ class DesignerView extends Component {
 
     render() {
         let {loaded, elemConfigs} = designerStore!;
+        if (!loaded)
+            return <Loading/>;
         return (
-            <>
-                {loaded ? <DesignerBackground config={elemConfigs!['80cc666f']['background'] || {}}>
-                    {this.generateElement()}
-                </DesignerBackground> : <Loading/>}
-            </>
+            <DesignerBackground config={elemConfigs!['80cc666f']['background'] || {}}>
+                {this.generateElement()}
+            </DesignerBackground>
         );
     }
 }

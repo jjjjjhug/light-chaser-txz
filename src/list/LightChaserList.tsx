@@ -6,15 +6,14 @@ import templateMarket from "./icon/template-market.svg";
 import datasource from "./icon/datasource.svg";
 import LcButton from "../lib/lc-button/LcButton";
 
-import listDelImg from "./list-del.svg";
-import listDisplay from "./list-display.svg";
-import listEdit from "./list-edit.svg";
-import { buildUrlParams } from "../utils/URLUtil";
-import { ImgUtil } from "../utils/ImgUtil";
-import { ProjectState, SaveType } from "../designer/DesignerType";
-import designerStarter from "../designer/DesignerStarter";
+import listDelImg from './list-del.svg';
+import listDisplay from './list-display.svg';
+import listEdit from './list-edit.svg';
+import {buildUrlParams} from "../utils/URLUtil";
+import {ImgUtil} from "../utils/ImgUtil";
+import {ProjectState, SaveType} from "../designer/DesignerType";
 import designerStore from "../designer/store/DesignerStore";
-import { idGenerate } from "../utils/IdGenerate";
+import EditorDesignerLoader from "../designer/loader/EditorDesignerLoader";
 
 const LightChaserList = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -53,9 +52,30 @@ const LightChaserList = () => {
       });
   }, []);
 
-  const toggleNewProVisible = () => {
-    setShowAddDialog(!showAddDialog);
-  };
+    componentDidMount() {
+        EditorDesignerLoader.getInstance().scannerProjectOperators();
+        const {projectConfig: {saveType = SaveType.LOCAL}} = designerStore;
+        EditorDesignerLoader.getInstance().abstractOperatorMap[saveType].getProjectSimpleInfoList().then((data: any) => {
+            if (data && data.length > 0) {
+                this.setState({data});
+                let imageIds: any = [];
+                data.forEach((item: any) => {
+                    let imageId = item.screenshot;
+                    if (imageId && imageId !== '')
+                        imageIds.push(imageId);
+                });
+                const promise = imageIds.map((imageId: any) => ImgUtil.getImageFromLocalWithKey(imageId));
+                let imageIdToUrl: any = {};
+                Promise.all(promise).then((res: any) => {
+                    res.forEach((item: any) => {
+                        const key = Object.keys(item)[0];
+                        imageIdToUrl[key] = item[key];
+                    });
+                    this.setState({imageIdToUrl});
+                });
+            }
+        })
+    }
 
   const onOk = (data: NewProjectInfoType) => {
     let urlParams = buildUrlParams({ ...data, ...{ action: "create" } });

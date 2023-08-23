@@ -1,9 +1,9 @@
 import {action, makeObservable, observable, runInAction} from "mobx";
 import {MenuInfo} from "./MenuType";
-import designerStarter from "../DesignerStarter";
 import {AbstractCustomComponentDefinition} from "../../framework/core/AbstractCustomComponentDefinition";
 import {ActiveElem} from "../DesignerType";
 import {PictureFilled} from "@ant-design/icons";
+import EditorDesignerLoader from "../loader/EditorDesignerLoader";
 
 
 export const bgMenu: MenuInfo[] = [{
@@ -61,7 +61,7 @@ class RightStore {
             this.activeElem = {id: '80cc666f', type: 'LcBg'};
         } else {
             //更新菜单列表
-            this.menus = (designerStarter.customComponentInfoMap[type] as AbstractCustomComponentDefinition).getMenuList() || [];
+            this.menus = (EditorDesignerLoader.getInstance().customComponentInfoMap[type] as AbstractCustomComponentDefinition).getMenuList() || [];
             if (this.menus.length > 0) {
                 let setNewActiveMenu = true;
                 for (let i = 0; i < this.menus.length; i++) {
